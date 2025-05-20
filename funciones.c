@@ -5,14 +5,20 @@
 #include <time.h>
 #include "funciones.h"
 
-char nombresProductos[MAX_PRODUCTOS][MAX_NOMBRE] = {"Mesa", "Silla", "Cama", "Escritorio", "Armario"};
-char nombresComponentes[MAX_COMPONENTES][MAX_NOMBRE] = {"Madera", "Tornillos", "Clavos", "Barniz", "Bisagras"};
+char nombresProductos[MAX_PRODUCTOS][MAX_NOMBRE] = {
+    "Mesa", "Silla", "Cama", "Escritorio", "Armario", "", "", "", "", ""
+};
+char nombresComponentes[MAX_COMPONENTES][MAX_NOMBRE] = {
+    "Madera", "Tornillos", "Clavos", "Barniz", "Bisagras", "", "", "", "", ""
+};
+
 int matrizComponentes[MAX_PRODUCTOS][MAX_COMPONENTES] = {
-    {4, 20, 10, 2, 4},
-    {2, 10, 5, 1, 2},
-    {6, 30, 15, 3, 6},
-    {5, 25, 12, 2, 5},
-    {7, 35, 18, 3, 8}
+    {4, 20, 10, 2, 4}, 
+    {2, 10, 5, 1, 2},   
+    {6, 30, 15, 3, 6},  
+    {5, 25, 12, 2, 5},  
+    {7, 35, 18, 3, 8},  
+    {0}, {0}, {0}, {0}, {0}
 };
 int tiempoFabricacion[MAX_PRODUCTOS] = {300, 200, 400, 350, 450};
 int inventarioComponentes[MAX_COMPONENTES] = {100, 200, 150, 80, 120};
@@ -23,8 +29,8 @@ int totalPedidos = 0;
 int precios[MAX_PRODUCTOS] = {50, 30, 100, 80, 120};
 
 void mostrarFactura() {
-    srand(time(NULL)); 
-    int id = rand() % 9000 + 1000; 
+    srand(time(NULL));
+    int id = rand() % 9000 + 1000;
     printf("\n====== FACTURA ======\n");
     printf("ID: #%d\n", id);
     printf("URQUIMUEBLES\n");
@@ -33,11 +39,10 @@ void mostrarFactura() {
     float total = 0;
 
     for (int i = 0; i < totalPedidos; i++) {
-        int producto = productosFacturados[i];      
-        int cantidad = cantidadesFacturadas[i];      
-        int precioUnitario = precios[producto];   
-        float subtotal = cantidad * precioUnitario;  
-
+        int producto = productosFacturados[i];
+        int cantidad = cantidadesFacturadas[i];
+        int precioUnitario = precios[producto];
+        float subtotal = cantidad * precioUnitario;
         total += subtotal;
 
         printf("%s - Cantidad: %d - Precio: $%d - Subtotal: $%.2f\n",
@@ -54,20 +59,6 @@ void mostrarFactura() {
     printf("======================\n");
 }
 
-int validacionRecursos() {
-    int dato;
-    int val;
-    do {
-        val = scanf("%d", &dato);
-        if (val != 1 || dato < 0) {
-            printf("Ingrese un numero valido: ");
-            while (getchar() != '\n');
-        }
-    } while (val != 1 || dato < 0);
-    while (getchar() != '\n');
-    return dato;
-}
-
 int validacionInt() {
     int dato;
     int val;
@@ -78,6 +69,19 @@ int validacionInt() {
             while (getchar() != '\n');
         }
     } while (val != 1 || dato <= 0);
+    while (getchar() != '\n');
+    return dato;
+}
+
+int validacionRecursos() {
+    int dato;
+    int val;
+    val = scanf("%d", &dato);
+    while (val != 1 || dato < 0) {
+        printf("Ingrese un numero valido (puede ser 0): ");
+        while (getchar() != '\n');
+        val = scanf("%d", &dato);
+    }
     while (getchar() != '\n');
     return dato;
 }
@@ -131,13 +135,6 @@ void ingresarPedido() {
         printf("Desea ingresar otro pedido? (s/n): ");
         continuar = getchar();
         while (getchar() != '\n');
-        if (pedidosConfirmados > 0 && continuar == 'n') {
-            printf("Desea ver la factura? (s/n): ");
-            char verFactura = getchar();
-            if (verFactura == 's' || verFactura == 'S') {
-                mostrarFactura();
-            }
-        }
     }
 }
 
@@ -176,32 +173,46 @@ void mostrarSugerencia(int requeridos[MAX_COMPONENTES], int tiempoDisponible, in
 
 void mostrarProductos() {
     printf("\n--- Productos y recursos por unidad ---\n");
+
     for (int i = 0; i < MAX_PRODUCTOS; i++) {
-        if (strlen(nombresProductos[i]) == 0) continue;
-        printf("%s (Tiempo: %d) - Precio: $%d\n", nombresProductos[i], tiempoFabricacion[i], precios[i]);
-        for (int j = 0; j < MAX_COMPONENTES; j++) {
-            printf(" - %s: %d\n", nombresComponentes[j], matrizComponentes[i][j]);
+        if (strlen(nombresProductos[i]) > 0) {
+            printf("%s (Tiempo: %d) - Precio: $%d\n", 
+                   nombresProductos[i], tiempoFabricacion[i], precios[i]);
+
+            for (int j = 0; j < MAX_COMPONENTES; j++) {
+                if (strlen(nombresComponentes[j]) > 0 && matrizComponentes[i][j] > 0) {
+                    printf(" - %s: %d\n", 
+                           nombresComponentes[j], matrizComponentes[i][j]);
+                }
+            }
         }
     }
 }
 
+
 void mostrarInventario() {
     printf("\n--- Inventario actual ---\n");
     for (int i = 0; i < MAX_COMPONENTES; i++) {
-        printf("%s: %d unidades\n", nombresComponentes[i], inventarioComponentes[i]);
+        if (strlen(nombresComponentes[i]) > 0) {
+            printf("%s: %d unidades\n", nombresComponentes[i], inventarioComponentes[i]);
+        }
     }
 }
+
 
 void reabastecerInventario() {
     printf("\n--- Reabastecer componentes ---\n");
     for (int i = 0; i < MAX_COMPONENTES; i++) {
-        int extra;
-        printf("Agregar unidades de %s: ", nombresComponentes[i]);
-        extra = validacionInt();
-        inventarioComponentes[i] += extra;
+        if (strlen(nombresComponentes[i]) > 0) {
+            int extra;
+            printf("Agregar unidades de %s: ", nombresComponentes[i]);
+            extra = validacionInt();
+            inventarioComponentes[i] += extra;
+        }
     }
     printf("Reabastecimiento completado.\n");
 }
+
 
 void editarOEliminarProducto() {
     char nombre[MAX_NOMBRE];
@@ -228,6 +239,7 @@ void editarOEliminarProducto() {
     int opcion = validacionInt();
 
     if (opcion == 1) {
+        
         printf("Nuevo nombre del producto: ");
         fgets(nombresProductos[encontrado], MAX_NOMBRE, stdin);
         nombresProductos[encontrado][strcspn(nombresProductos[encontrado], "\n")] = 0;
@@ -235,24 +247,100 @@ void editarOEliminarProducto() {
         printf("Nuevo tiempo de fabricacion: ");
         tiempoFabricacion[encontrado] = validacionInt();
 
+       
         for (int j = 0; j < MAX_COMPONENTES; j++) {
-            printf("Cantidad de %s por unidad: ", nombresComponentes[j]);
-            matrizComponentes[encontrado][j] = validacionRecursos();
+            if (strlen(nombresComponentes[j]) > 0) {
+                printf("Cantidad de %s por unidad: ", nombresComponentes[j]);
+                matrizComponentes[encontrado][j] = validacionRecursos();
+            }
         }
 
         printf("Nuevo precio del producto: ");
         precios[encontrado] = validacionInt();
 
         printf("Producto actualizado.\n");
+
     } else if (opcion == 2) {
         strcpy(nombresProductos[encontrado], "");
         tiempoFabricacion[encontrado] = 0;
         precios[encontrado] = 0;
-        for (int j = 0; j < MAX_COMPONENTES; j++)
+        for (int j = 0; j < MAX_COMPONENTES; j++) {
             matrizComponentes[encontrado][j] = 0;
+        }
         printf("Producto eliminado.\n");
+
     } else {
         printf("Opcion invalida.\n");
     }
 }
 
+
+
+
+void agregarProducto() {
+    int nuevo = -1;
+    for (int i = 0; i < MAX_PRODUCTOS; i++) {
+        if (strlen(nombresProductos[i]) == 0) {
+            nuevo = i;
+            break;
+        }
+    }
+
+    if (nuevo == -1) {
+        printf("No hay espacio para agregar mas productos.\n");
+        return;
+    }
+
+    printf("Ingrese el nombre del nuevo producto: ");
+    fgets(nombresProductos[nuevo], MAX_NOMBRE, stdin);
+    nombresProductos[nuevo][strcspn(nombresProductos[nuevo], "\n")] = 0;
+
+    printf("Ingrese el tiempo de fabricacion del producto: ");
+    tiempoFabricacion[nuevo] = validacionInt();
+
+    printf("Ingrese el precio del producto: ");
+    precios[nuevo] = validacionInt();
+
+    printf("Ingrese la cantidad de cada recurso que necesita este producto:\n");
+    for (int i = 0; i < MAX_COMPONENTES; i++) {
+        if (strlen(nombresComponentes[i]) > 0) {
+            printf("- %s: ", nombresComponentes[i]);
+            matrizComponentes[nuevo][i] = validacionRecursos();
+        }
+    }
+
+    printf("Este producto necesita un nuevo recurso? (s/n): ");
+    char respuesta = getchar();
+    while (getchar() != '\n');
+
+    if (respuesta == 's' || respuesta == 'S') {
+        int pos = -1;
+        for (int i = 0; i < MAX_COMPONENTES; i++) {
+            if (strlen(nombresComponentes[i]) == 0) {
+                pos = i;
+                break;
+            }
+        }
+
+        if (pos == -1) {
+            printf("No hay espacio para agregar mas recursos.\n");
+            return;
+        }
+
+        printf("Recursos actuales: ");
+        for (int i = 0; i < MAX_COMPONENTES; i++) {
+            if (strlen(nombresComponentes[i]) > 0)
+                printf("%s, ", nombresComponentes[i]);
+        }
+        printf("\n");
+
+        printf("Ingrese el nombre del nuevo recurso: ");
+        fgets(nombresComponentes[pos], MAX_NOMBRE, stdin);
+        nombresComponentes[pos][strcspn(nombresComponentes[pos], "\n")] = 0;
+
+        printf("Cuantas unidades de %s requiere el producto?: ", nombresComponentes[pos]);
+        matrizComponentes[nuevo][pos] = validacionRecursos();
+    }
+
+    printf("Producto agregado correctamente.\n");
+}
