@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include "funciones.h"
 
@@ -24,9 +23,6 @@ int main() {
             case 5: editarOEliminarProducto(); break;
             case 6: agregarProducto(); break;
             case 7:
-                if (pedidosConfirmados > 0) {
-                    mostrarFactura();
-                }
                 printf("Saliendo del programa...\n");
                 break;
             default: printf("Opcion invalida.\n");
